@@ -1,9 +1,30 @@
 from django.contrib import admin
+from django.db.models import Count
+from django.template.response import TemplateResponse
+
 from renthouse.models import User, House, RoomForRent, HouseOwner, HouseImage, RoomImage, UserPost, OwnerPost, \
     UserPostOwnerComment, UserPostUserComment, OwnerPostOwnerComment, OwnerPostUserComment
 from django.utils.html import mark_safe
 from django import forms
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
+from django.urls import path
+
+
+class RentHouseAdminSite(admin.AdminSite):
+    site_header = 'RentHouseOnline'
+
+    def get_urls(self):
+        return [path('statistic/', self.stats_view)] + super().get_urls()
+
+    def stats_view(self, request):
+        user_stats = User.objects.annotate(c=Count('user__id')).values('id', 'username', 'c')
+        owner_stats = HouseOwner.objects.annotate(c=Count('houseowner__id')).values('id', 'username', 'c')
+        return TemplateResponse(request, 'admin/statistic.html', {
+            "user_stats": user_stats
+        })
+
+
+admin_site = RentHouseAdminSite(name='RentHouse')
 
 
 class UserPostForm(forms.ModelForm):
@@ -115,15 +136,15 @@ class OwnerPostOwnerCommentManager(admin.ModelAdmin):
 
 
 # Register your models here.
-admin.site.register(User, AccountManager)
-admin.site.register(HouseOwner, AccountManager)
-admin.site.register(House, HouseAppAdmin)
-admin.site.register(HouseImage, ImageModel)
-admin.site.register(RoomImage, ImageModel)
-admin.site.register(RoomForRent, RoomManager)
-admin.site.register(UserPost, UserPostManager)
-admin.site.register(OwnerPost, OwnerPostManager)
-admin.site.register(UserPostOwnerComment, UserPostOwnerCommentManager)
-admin.site.register(UserPostUserComment, UserPostUserCommentManager)
-admin.site.register(OwnerPostOwnerComment, OwnerPostOwnerCommentManager)
-admin.site.register(OwnerPostUserComment, OwnerPostUserCommentManager)
+admin_site.register(User, AccountManager)
+admin_site.register(HouseOwner, AccountManager)
+admin_site.register(House, HouseAppAdmin)
+admin_site.register(HouseImage, ImageModel)
+admin_site.register(RoomImage, ImageModel)
+admin_site.register(RoomForRent, RoomManager)
+admin_site.register(UserPost, UserPostManager)
+admin_site.register(OwnerPost, OwnerPostManager)
+admin_site.register(UserPostOwnerComment, UserPostOwnerCommentManager)
+admin_site.register(UserPostUserComment, UserPostUserCommentManager)
+admin_site.register(OwnerPostOwnerComment, OwnerPostOwnerCommentManager)
+admin_site.register(OwnerPostUserComment, OwnerPostUserCommentManager)

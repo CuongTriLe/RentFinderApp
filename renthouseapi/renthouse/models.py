@@ -124,7 +124,6 @@ class UserPostOwnerComment(BaseModel):
         return self.author.username + " in " + self.post_comment.author.username + " Post"
 
 
-
 class Follow(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Người theo dõi
     house_owner = models.ForeignKey(HouseOwner, on_delete=models.CASCADE,
@@ -132,3 +131,4 @@ class Follow(models.Model):
 
     def __str__(self):
         return self.user.username + " is follow " + self.house_owner.username
+

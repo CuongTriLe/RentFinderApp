@@ -4,15 +4,29 @@ from renthouse.models import User, HouseOwner, House, RoomForRent, HouseImage, R
 
 
 class HouseOwnerSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        data = validated_data.copy()
+        user = HouseOwner(**data)
+        user.set_password(user.password)
+        user.save()
+        return user
+
     class Meta:
         model = HouseOwner
-        fields = ['id', 'username', 'first_name', 'last_name', 'phone', 'address', 'email']
+        fields = ['id', 'username', 'first_name', 'last_name', 'phone', 'address', 'email', 'password', 'avatar']
 
 
 class UserSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        data = validated_data.copy()
+        user = User(**data)
+        user.set_password(user.password)
+        user.save()
+        return user
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'email']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'password', 'avatar']
 
 
 class HouseSerializer(serializers.ModelSerializer):
@@ -52,6 +66,8 @@ class OwnerPostOwnerCommentSerializer(serializers.ModelSerializer):
 
 
 class OwnerPostUserCommentSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
     class Meta:
         model = OwnerPostUserComment
         fields = '__all__'
@@ -73,4 +89,3 @@ class UserPostUserCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserPostUserComment
         fields = '__all__'
-
