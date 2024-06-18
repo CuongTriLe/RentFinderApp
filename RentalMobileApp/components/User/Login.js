@@ -1,32 +1,76 @@
-import React, { useContext, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text } from "react-native";
+import { Button, TextInput } from "react-native-paper";
+import React, { useContext } from "react";
+import APIs, { authApi, endpoints } from "../../configs/APIs";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
+import { MyDispatchContext } from "../../configs/Contexts";
 
+const Login = ({navigation}) => {
+    const [user, setUser] = React.useState({});
+    const fields = [{
+        "label": "Tên đăng nhập",
+        "icon": "account",
+        "name": "username"
+    }, {
+        "label": "Mật khẩu",
+        "icon": "eye",
+        "name": "password",
+        "secureTextEntry": true
+    }];
+    const [loading, setLoading] = React.useState(false);
+    const dispatch = useContext(MyDispatchContext);
 
-const Login = () => {
-  
-  return (
-    <View className={`flex-1 justify-center items-center bg-white`}>
-      <View className={`w-full h-3/4  bg-gray-100 p-3 rounded-lg shadow-md`}>
-        <Text className={`text-3xl font-bold mb-8 text-center text-orange-500`}>Đăng nhập</Text>
-        <TextInput 
-          className={`bg-gray-200 mb-4 px-4 py-6 rounded-lg text-base`}
-          placeholder="Tên đăng nhập"
-          placeholderTextColor="#A0AEC0"
-        />
-        <TextInput 
-          className={`bg-gray-200 mb-8 px-4 py-6 rounded-lg text-base`}
-          placeholder="Mật khẩu"
-          placeholderTextColor="#A0AEC0"
-          secureTextEntry={true}
-        />
-        <TouchableOpacity
-          className={`bg-orange-500 py-2 rounded-lg`}
-        >
-          <Text className={`text-white text-center text-lg font-bold`}>Đăng nhập</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-};
+    const updateSate = (field, value) => {
+        setUser(current => {
+            return {...current, [field]: value}
+        });
+    }
+
+    const login = async () => {
+        setLoading(true);
+        try {
+          console.log(user)
+            let res = await APIs.post(endpoints['login'],new URLSearchParams({
+              'grant_type': 'password',
+              'client_id': 'pHJ3YFeFZF9XOj4BI7IPkqiqsffno61iMJjZtyfA',
+              'client_secret': 'mvuP0IKpAjetondce9Q97tYPiq0IGYADnwK1xeAKuzI96H4mSXN5bD2zPStrxn8zjsogXpbjw4occ9IxnoIudo3DsK5nfg3tfkNbrKxfPcnsgnm9Fy5IbmTUOhLbezVm',
+              ...user
+          }), 
+          {
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+              }
+          });
+            console.info(res.data);
+
+            await AsyncStorage.setItem("token", res.data.access_token);
+            
+            setTimeout(async () => {
+                let user = await authApi(res.data.access_token).get(endpoints['current-user']);
+                console.info(user.data);
+
+                dispatch({
+                    'type': "login",
+                    'payload': user.data
+                })
+
+                navigation.navigate('Home');
+            }, 100);
+        } catch (ex) {
+            console.error(ex);
+        } finally {
+            setLoading(false);
+        }   
+    }
+
+    return (
+        <View >
+            <Text className= {'font-serif text-orange-500 text-xl font-bold text-center mb-10 mt-10'} >ĐĂNG NHẬP NGƯỜI DÙNG</Text>
+            {fields.map(c => <TextInput secureTextEntry={c.secureTextEntry} value={user[c.name]} onChangeText={t => updateSate(c.name, t)}  key={c.name} label={c.label} right={<TextInput.Icon icon={c.icon} />} />)}
+            <Button className ="mt-10 bg-orange-400"icon="account" loading={loading} mode="contained" onPress={login}>ĐĂNG NHẬP</Button>
+        </View>
+    );
+}
 
 export default Login;

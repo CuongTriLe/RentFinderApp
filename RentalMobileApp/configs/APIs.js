@@ -7,14 +7,17 @@ export const endpoints = {
     'user-posts' : `/user-posts/`,
     'owner-posts-details' : (ownerpostId) =>`/owner-posts/${ownerpostId}/`,
     'houses':`/houses/`,
-    'rooms': (houseId) => `/houses/${houseId}/room/`
+    'rooms': (houseId) => `/houses/${houseId}/room/`,
+    'register': '/users/',
+    'login': '/o/token/',
+    'current-user': '/users/current-user/'
 };
 
-export const authApi = () => {
+export const authApi = (token) => {
     return axios.create({
         baseURL: BASE_URL,
         headers: {
-            'Authorization': `Bearer...`
+            'Authorization': `Bearer ${token}`
         }
     })
 }

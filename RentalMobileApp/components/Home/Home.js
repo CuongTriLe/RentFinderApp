@@ -57,6 +57,11 @@ const Home = ({navigation}) => {
                                 source={{ html: h.post_content }}
                             />
                         </TouchableOpacity>
+                         <Image
+                            source={{ uri: "https://res.cloudinary.com/dhitdivyi/image/upload/v1718385861/l0onkudwpw6smzzaodkz.jpg" }}
+                            className={`w-full h-48 rounded-lg mb-4`}
+                            resizeMode="cover"
+                        />
                         <Text className={`text-sm text-gray-600 mb-2`}>{moment(h.created_date).fromNow()}</Text>
                     </View>
                 ) )}
