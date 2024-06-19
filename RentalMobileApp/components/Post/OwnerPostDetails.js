@@ -8,6 +8,7 @@ import RenderHTML from "react-native-render-html";
 
 const OwnerPostDetails  = ({route}) =>{
     const [ownerposts, setOwnerpost]= React.useState([]);
+    const [comment, setComment] = React.useState([]);
     const {ownerpostId} = route.params;
     console.log(ownerpostId)
     React.useEffect(() => {
@@ -28,11 +29,12 @@ const OwnerPostDetails  = ({route}) =>{
         {ownerposts == null ? <ActivityIndicator/>:<>
             {ownerposts.map(h =>( 
             <View key={h.id} className={`flex-row items-center bg-white rounded-lg shadow-md p-4 mb-4`}>
+                {h.house.images.map((image) => (
                 <Image
-                    source={{ uri: "https://res.cloudinary.com/dhitdivyi/image/upload/v1718385861/l0onkudwpw6smzzaodkz.jpg" }}
+                    source={{ uri: image.image }}
                     className={`w-1/3 h-32 rounded-lg mr-4`}
                     resizeMode="cover"
-                />
+                />))}
                 <View className={`flex-1`}>
                     <RenderHTML 
                         source={{ html: h.post_content }}
@@ -40,6 +42,7 @@ const OwnerPostDetails  = ({route}) =>{
                     <Text className={`text-sm text-black-600 mb-2`}>
                         {h.house.address}
                     </Text>
+                    
                 </View>
                 
             </View>

@@ -6,6 +6,7 @@ export const endpoints = {
     'owner-posts' : `/owner-posts/`,
     'user-posts' : `/user-posts/`,
     'owner-posts-details' : (ownerpostId) =>`/owner-posts/${ownerpostId}/`,
+    'owner-posts-comments': (ownerpostId) =>`/owner-posts/${ownerpostId}/user-comments`,
     'houses':`/houses/`,
     'rooms': (houseId) => `/houses/${houseId}/room/`,
     'register': '/users/',
