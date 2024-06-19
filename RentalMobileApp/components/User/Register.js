@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, ScrollView, Text, View, Image, Platform } from 'react-native'
+import { KeyboardAvoidingView, ScrollView, Text, View, Image, Platform, TouchableOpacity } from 'react-native'
 import React, {useState, useEffect} from 'react'
 import { HelperText, TextInput, TouchableRipple, Button } from 'react-native-paper';
 import DropDown from 'react-native-paper-dropdown'; 
@@ -13,10 +13,15 @@ export default Register = ({navigation}) => {
     const [loading, setLoading] = React.useState(false);
     const nav= useNavigation();
 
+    const gotoLogin = () =>{
+        navigation.navigate("Login")
+    }
+
+
     const picker = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted')
-            Alert.alert("iCourseApp", "Permissions Denied!");
+            Alert.alert("RentalMobile", "Permissions Denied!");
         else {
             let res = await ImagePicker.launchImageLibraryAsync();
             if (!res.canceled) {
@@ -102,7 +107,7 @@ export default Register = ({navigation}) => {
       <View>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}> 
             <ScrollView>
-                <Text className='flex-1 text-center'>ĐĂNG KÝ</Text>  
+                <Text className='font-serif text-orange-500 text-xl font-bold text-center mb-10 mt-10'>ĐĂNG KÝ TÀI KHOẢN</Text>  
 
                 {fields.map(c => <TextInput secureTextEntry={c.secureTextEntry} value={user[c.name]} onChangeText={t => updateSate(c.name, t)} key={c.name} label={c.label} right={<TextInput.Icon icon={c.icon} />} />)}
 
@@ -127,7 +132,10 @@ export default Register = ({navigation}) => {
                 <Image className='flex w-[80px] h-[80px]' source={{uri: user?.avatar?.uri}}/> 
 
 
-                <Button icon="account" loading={loading} mode="contained" onPress={register}>ĐĂNG KÝ</Button>
+                <Button className="mt-10 bg-orange-400" icon="account" loading={loading} mode="contained" onPress={register}>ĐĂNG KÝ</Button>
+                <View className="mt-5 ml-20">
+                    <Text>Bạn đã có tài khoản ? <TouchableOpacity onPress={() => gotoLogin()}><Text className="color-orange-400">Đăng nhập </Text></TouchableOpacity></Text>
+                </View>
             </ScrollView>
         </KeyboardAvoidingView>  
       </View>

@@ -27,8 +27,9 @@ const MyTab = () => {
         
       <Tab.Screen name="Login" component={Login} options={{title: "Đăng nhập", tabBarIcon: () => <Icon size={30} color="#ff8800" source="login" />}} />
       </>:<>
-        <Tab.Screen name="Profile" component={Profile} options={{ title: user.username, tabBarIcon: () => <Icon size={30} color="#ff8800" source="account" />}} />
-        <Tab.Screen name = 'Post' component = {Post} options={{tabBarIcon: () => <Icon size = {30} color ="#ff8800" source= "post"/>}}/>
+        <Tab.Screen name="Profile" component={Profile} options={{ title: "Hồ sơ", tabBarIcon: () => <Icon size={30} color="#ff8800" source="account" />}} />
+        
+        {/*<Tab.Screen name = 'Post' component = {Post} options={{tabBarIcon: () => <Icon size = {30} color ="#ff8800" source= "post"/>}}/>*/}
       </>}
         
         

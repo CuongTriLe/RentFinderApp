@@ -8,7 +8,7 @@ import RenderHTML from "react-native-render-html";
 
 const OwnerPostDetails  = ({route}) =>{
     const [ownerposts, setOwnerpost]= React.useState([]);
-    const [comment, setComment] = React.useState([]);
+    const [comments, setComments] = React.useState([]);
     const {ownerpostId} = route.params;
     console.log(ownerpostId)
     React.useEffect(() => {
@@ -42,7 +42,9 @@ const OwnerPostDetails  = ({route}) =>{
                     <Text className={`text-sm text-black-600 mb-2`}>
                         {h.house.address}
                     </Text>
-                    
+                    <View>
+                        <Text >Bình luận</Text>
+                    </View>
                 </View>
                 
             </View>

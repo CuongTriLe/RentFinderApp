@@ -1,10 +1,11 @@
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Button, TextInput } from "react-native-paper";
 import React, { useContext } from "react";
 import APIs, { authApi, endpoints } from "../../configs/APIs";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { MyDispatchContext } from "../../configs/Contexts";
+
 
 const Login = ({navigation}) => {
     const [user, setUser] = React.useState({});
@@ -20,6 +21,10 @@ const Login = ({navigation}) => {
     }];
     const [loading, setLoading] = React.useState(false);
     const dispatch = useContext(MyDispatchContext);
+
+    const gotoRegister = () =>{
+        navigation.navigate("Register")
+    }
 
     const updateSate = (field, value) => {
         setUser(current => {
@@ -69,6 +74,9 @@ const Login = ({navigation}) => {
             <Text className= {'font-serif text-orange-500 text-xl font-bold text-center mb-10 mt-10'} >ĐĂNG NHẬP NGƯỜI DÙNG</Text>
             {fields.map(c => <TextInput secureTextEntry={c.secureTextEntry} value={user[c.name]} onChangeText={t => updateSate(c.name, t)}  key={c.name} label={c.label} right={<TextInput.Icon icon={c.icon} />} />)}
             <Button className ="mt-10 bg-orange-400"icon="account" loading={loading} mode="contained" onPress={login}>ĐĂNG NHẬP</Button>
+            <View className="mt-5 ml-20">
+                <Text>Bạn chưa có tài khoản ? <TouchableOpacity onPress={() => gotoRegister()}><Text className="color-orange-400">Đăng ký</Text></TouchableOpacity></Text>
+            </View>
         </View>
     );
 }
