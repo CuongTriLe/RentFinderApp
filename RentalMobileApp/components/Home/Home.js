@@ -2,11 +2,13 @@ import { View, Text, ActivityIndicator, ScrollView, TouchableOpacity, Image, use
 import APIs, { endpoints } from "../../configs/APIs";
 import React, { useState } from "react"
 import moment from "moment";
-
+import DropDown from 'react-native-paper-dropdown';
 import RenderHTML from "react-native-render-html";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useContext } from "react";
 import { MyUserContext } from "../../configs/Contexts";
+import { Provider } from "react-native-paper";
+
 
 
 
@@ -17,7 +19,41 @@ const Home = ({ navigation }) => {
     const [nextPostUser, setNextPostUser] = useState('')
     const [nextPostOwner, setNextPostOwner] = useState('')
     const user = useContext(MyUserContext);
-
+    const [selectedDistrict, setSelectedDistrict] = useState(1);
+    const [selectedPriceRange, setSelectedPriceRange] = useState(null);
+    const [showDropdown1, setShowDropdown1] = useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
+    
+    
+    const districtList = [
+        {
+            label: 'Huyện Nhà Bè',
+            value: 'Huyện Nhà Bè',
+        },
+        {
+            label: 'Quận 12',
+            value: 'Quận 12',
+        },
+        {
+            label: 'Quận Gò Vấp',
+            value: 'Quận Gò Vấp',
+        },
+        
+    ];
+    const priceLevelList = [
+        {
+            label: '< 5 triệu',
+            value: '0-5000000',
+        },
+        {
+            label: '5 triệu - 10 triệu',
+            value: '5000000-10000000',
+        },
+        {
+            label: '> 10 triệu',
+            value: '10000000',
+        },
+    ];
 
     const gotoPostDetail = (ownerpostId) => {
         navigation.navigate("OwnerPostDetails", { ownerpostId })
@@ -73,6 +109,7 @@ const Home = ({ navigation }) => {
             {ownerposts == null ? <ActivityIndicator /> : <>
                 {ownerposts.map(h => {
                     return (
+                        selectedDistrict === h.house.district && (
                         <View key={h.id} className={`bg-white shadow-md border-b-2 border-orange-300 rounded-lg p-3 mb-4`}>
                             <View className={`flex-row items-center mb-4`}>
                                 <Image
@@ -100,7 +137,9 @@ const Home = ({ navigation }) => {
                             </TouchableOpacity>
 
                             <Text className={`text-sm text-gray-600 mb-2`}>{moment(h.created_date).fromNow()}</Text>
+                            
                         </View>
+                        )
                     )
                 })}
             </>}</ScrollView>)
@@ -118,9 +157,6 @@ const Home = ({ navigation }) => {
                             />
 
                             <Text className={`text-base text-gray-600`}>{h.author_name}</Text>
-                            <TouchableOpacity className="ml-10">
-                                <Text >Theo dõi</Text>
-                            </TouchableOpacity>
                         </View>
                         <TouchableOpacity >
                             <RenderHTML
@@ -165,6 +201,53 @@ const Home = ({ navigation }) => {
                         <Text className={`text-white font-bold`}>Tìm kiếm</Text>
                     </TouchableOpacity>
                 </View>
+
+
+                <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+              
+                    <Provider>
+                        <DropDown
+                            label="Chọn quận"
+                            mode="outlined"
+                            value={selectedDistrict}
+                            setValue={setSelectedDistrict}
+                            list={districtList}
+                            visible={showDropdown1}
+                            showDropDown={() => setShowDropdown1(true)}
+                            onDismiss={() => setShowDropdown1(false)}
+                            dropDownStyle={{
+                                width: '80%', // Điều chỉnh độ rộng của dropdown tại đây
+                                top: '10%',
+                                left: '0',
+                                zIndex: 1000,
+                            }}
+                        
+                        />
+                    </Provider>
+            
+                
+                <Provider>
+                    
+                    <DropDown
+                        label="Chọn mức giá"
+                        mode="outlined"
+                        value={selectedPriceRange}
+                        setValue={setSelectedPriceRange}
+                        list={priceLevelList}
+                        visible={showDropdown}
+                        showDropDown={() => setShowDropdown(true)}
+                        onDismiss={() => setShowDropdown(false)}
+                        dropDownStyle={{
+                            width: '100%', 
+                            top: '10%',
+                            left: '0',
+                            zIndex: 1000,
+                        }}
+                    />
+                </Provider>
+                
+                </View>
+
                 <Text className={'font-serif text-orange-500 text-xl font-bold text-center mb-10'}>TRANG CHỦ</Text>
                 <OwnerPostView/>
                 
