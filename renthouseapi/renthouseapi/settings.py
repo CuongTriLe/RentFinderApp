@@ -11,12 +11,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-
+import cloudinary
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 MEDIA_ROOT = '%s/renthouse/static/' % BASE_DIR
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -30,6 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 import pymysql
+
 pymysql.install_as_MySQLdb()
 
 # Application definition
@@ -89,7 +89,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'renthouseapi.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -99,10 +98,9 @@ DATABASES = {
         'NAME': 'renthousedb',
         'USER': 'root',
         'PASSWORD': '19892811',
-        'HOST': ''# mặc định localhost
+        'HOST': ''  # mặc định localhost
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -122,7 +120,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -134,7 +131,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
@@ -145,5 +141,12 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#WzjcCHt15mXfrBLuvGV24oK6zlSyzenDoDa31Mzb
-#wG2PKK5EQ8Y5xzak8WKq454FwARgN6IGmY8gZHLYdAFSQX0Cm5bkbr84iq7aBlRPdMLJTOFUm9h6vxeOFz1671cVvRTjnZ0miHxBd06jXTBk1fH76Wpdo9ZJpzR5ekXQ
+# WzjcCHt15mXfrBLuvGV24oK6zlSyzenDoDa31Mzb
+# wG2PKK5EQ8Y5xzak8WKq454FwARgN6IGmY8gZHLYdAFSQX0Cm5bkbr84iq7aBlRPdMLJTOFUm9h6vxeOFz1671cVvRTjnZ0miHxBd06jXTBk1fH76Wpdo9ZJpzR5ekXQ
+
+cloudinary.config(
+    cloud_name="dtso8xpof",
+    api_key="449524781133512",
+    api_secret="IP1_n16zBbsn4G2xljafBamtpGI",  # Click 'View Credentials' below to copy your API secret
+    secure=True
+)

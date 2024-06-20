@@ -176,8 +176,26 @@ class OwnerPostViewSet(viewsets.ViewSet, generics.ListAPIView):
     serializer_class = serializers.OwnerPostSerializer
     pagination_class = paginator.BasePaginator
 
+
+    def get_queryset(self):
+        queryset = self.queryset
+
+        c = self.request.query_params.get('c')
+        if c:
+            queryset = queryset.filter(post_content__icontains=c)
+        return queryset
+
+    def retrieve(self, request, pk=None):
+        queryset = self.get_queryset()
+        try:
+            owner_posts = queryset.get(pk=pk)
+            serializer = self.serializer_class(owner_posts)
+            return Response(serializer.data)
+        except OwnerPost.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
     def get_permissions(self):
-        if self.action in ['add_owner_comment', 'add_user_comment', 'like']:
+        if self.action in ['add_owner_comment', 'add_user_comment']:
             return [permissions.IsAuthenticated()]
 
         return [permissions.AllowAny()]
@@ -219,7 +237,7 @@ class UserPostOwnerCommentViewSet(viewsets.ViewSet, generics.ListAPIView, generi
     queryset = UserPostOwnerComment.objects.all()
     serializer_class = serializers.UserPostOwnerCommentSerializer
     pagination_class = paginator.BasePaginator
-    permission_classes = [perms.HouseOwnerCommentAuthor]
+    permission_classes = [perms.CommentAuthor]
 
     def get_queryset(self):
         queryset = self.queryset
@@ -234,7 +252,16 @@ class UserPostUserCommentViewSet(viewsets.ViewSet, generics.ListAPIView, generic
     queryset = UserPostUserComment.objects.all()
     serializer_class = serializers.UserPostUserCommentSerializer
     pagination_class = paginator.BasePaginator
-    permission_classes = [perms.UserCommentAuthor]
+    permission_classes = [perms.CommentAuthor]
+
+    def retrieve(self, request, pk=None):
+        queryset = self.get_queryset()
+        try:
+            user_comments = queryset.get(pk=pk)
+            serializer = self.serializer_class(user_comments)
+            return Response(serializer.data)
+        except OwnerPostUserComment.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     def get_queryset(self):
         queryset = self.queryset
@@ -249,7 +276,7 @@ class OwnerPostOwnerCommentViewSet(viewsets.ViewSet, generics.ListAPIView, gener
     queryset = OwnerPostOwnerComment.objects.all()
     serializer_class = serializers.OwnerPostOwnerCommentSerializer
     pagination_class = paginator.BasePaginator
-    permission_classes = [perms.HouseOwnerCommentAuthor]
+    permission_classes = [perms.CommentAuthor]
 
     def get_queryset(self):
         queryset = self.queryset
@@ -264,7 +291,16 @@ class OwnerPostUserCommentViewSet(viewsets.ViewSet, generics.ListAPIView, generi
     queryset = OwnerPostUserComment.objects.all()
     serializer_class = serializers.OwnerPostUserCommentSerializer
     pagination_class = paginator.BasePaginator
-    permission_classes = [perms.UserCommentAuthor]
+    permission_classes = [perms.CommentAuthor]
+
+    def retrieve(self, request, pk=None):
+        queryset = self.get_queryset()
+        try:
+            user_comments = queryset.get(pk=pk)
+            serializer = self.serializer_class(user_comments)
+            return Response(serializer.data)
+        except OwnerPostUserComment.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     def get_queryset(self):
         queryset = self.queryset

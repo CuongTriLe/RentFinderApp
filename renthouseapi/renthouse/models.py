@@ -1,16 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from ckeditor.fields import RichTextField
+from cloudinary.models import CloudinaryField
 
 
 class User(AbstractUser):
-    avatar = models.ImageField(upload_to='avatar/%Y/%m/', null=True)
+    avatar = CloudinaryField()
 
 
 class HouseOwner(User):
     address = models.CharField(max_length=255)
     phone = models.CharField(max_length=20, null=True)
-
+    is_houseowner = models.BooleanField(default=True)
     class Meta:
         verbose_name = 'House Owner User'
 
@@ -29,6 +30,7 @@ class House(BaseModel):
     address = models.CharField(max_length=255)
     latitude = models.FloatField(default=0)  # vi do
     longtitude = models.FloatField(default=0)  # kinh do
+    price = models.FloatField(default=0)
     house_owner = models.ForeignKey(HouseOwner, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
@@ -38,7 +40,7 @@ class House(BaseModel):
 # Ảnh dãy trọ
 class HouseImage(BaseModel):
     house_owner = models.ForeignKey(HouseOwner, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='houses/%Y/%m/')
+    image = CloudinaryField()
 
     def __str__(self):
         return self.house_owner.username + " House Picture"
@@ -58,7 +60,7 @@ class RoomForRent(BaseModel):
 # ảnh phòng trọ
 class RoomImage(models.Model):
     room_image = models.ForeignKey(RoomForRent, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='room/%y/%m')
+    image = CloudinaryField()
 
     def __str__(self):
         return self.room_image.house.house_owner.username + " " + self.room_image.room_number

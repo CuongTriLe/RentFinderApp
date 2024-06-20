@@ -17,10 +17,15 @@ class RentHouseAdminSite(admin.AdminSite):
         return [path('statistic/', self.stats_view)] + super().get_urls()
 
     def stats_view(self, request):
-        user_stats = User.objects.annotate(c=Count('user__id')).values('id', 'username', 'c')
-        owner_stats = HouseOwner.objects.annotate(c=Count('houseowner__id')).values('id', 'username', 'c')
+        user_stats = User.objects.exclude(houseowner__isnull=False).values('id', 'username', 'date_joined')
+        user_count = User.objects.exclude(houseowner__isnull=False).count()
+        howner_stats = HouseOwner.objects.values('id', 'username', 'date_joined')
+        howner_count = HouseOwner.objects.count()
         return TemplateResponse(request, 'admin/statistic.html', {
-            "user_stats": user_stats
+            "user_stats": user_stats,
+            "user_count": user_count,
+            "howner_stats": howner_stats,
+            "howner_count": howner_count
         })
 
 
@@ -85,7 +90,7 @@ class ImageModel(admin.ModelAdmin):
 
     def uploaded_photo(self, instance):
         if instance:
-            return mark_safe(f"<img width='120' src='/static/{instance.image.name}' />")
+            return mark_safe(f"<img width='120' src='{instance.image.url}' />")
 
 
 class AccountManager(admin.ModelAdmin):
@@ -96,7 +101,7 @@ class AccountManager(admin.ModelAdmin):
 
     def uploaded_avatar(self, instance):
         if instance:
-            return mark_safe(f"<img width='120' src='/static/{instance.avatar.name}' />")
+            return mark_safe(f"<img width='120' src='{instance.avatar.url}' />")
 
 
 class RoomManager(admin.ModelAdmin):

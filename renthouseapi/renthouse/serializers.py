@@ -29,13 +29,35 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'first_name', 'last_name', 'email', 'password', 'avatar']
 
 
+class RoomImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RoomImage
+        fields = '__all__'
+
+    def to_representation(self, roomimage):
+        data = super().to_representation(roomimage)
+        image = data.get('image', None);
+
+        if image:
+            data['image'] = roomimage.image.url
+
+        return data
+
+
 class HouseSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField()
     class Meta:
         model = House
         fields = '__all__'
 
+    def get_images(self, house):
+        data = RoomImage.objects.filter(room_image__house=house)
+
+        return RoomImageSerializer(data, many=True).data
+
 
 class RoomSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = RoomForRent
         fields = '__all__'
@@ -47,16 +69,18 @@ class HouseImageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class RoomImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RoomImage
-        fields = '__all__'
-
-
 class OwnerPostSerializer(serializers.ModelSerializer):
+    house = HouseSerializer()
+    author_avatar = serializers.SerializerMethodField()
     class Meta:
         model = OwnerPost
         fields = '__all__'
+
+    def get_author_avatar(self, obj):
+        author = obj.author
+        if author and author.avatar:
+            return author.avatar.url
+        return None
 
 
 class OwnerPostOwnerCommentSerializer(serializers.ModelSerializer):
