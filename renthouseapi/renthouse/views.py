@@ -2,7 +2,7 @@ from rest_framework import viewsets, generics, status, parsers, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from renthouse.models import User, House, RoomForRent, HouseOwner, HouseImage, RoomImage, UserPost, OwnerPost, \
-    UserPostOwnerComment, UserPostUserComment, OwnerPostOwnerComment, OwnerPostUserComment
+    UserPostUserComment, OwnerPostUserComment
 from renthouse import serializers, paginator , perms
 
 
@@ -133,8 +133,16 @@ class UserPostViewSet(viewsets.ViewSet, generics.ListAPIView):
     serializer_class = serializers.UserPostSerializer
     pagination_class = paginator.BasePaginator
 
+    def get_queryset(self):
+        queryset = self.queryset
+
+        c = self.request.query_params.get('c')
+        if c:
+            queryset = queryset.filter(post_content__icontains=c)
+        return queryset
+
     def get_permissions(self):
-        if self.action in ['add_owner_comment', 'add_user_comment']:
+        if self.action in ['add_user_comment']:
             return [permissions.IsAuthenticated()]
 
         return [permissions.AllowAny()]
@@ -145,37 +153,18 @@ class UserPostViewSet(viewsets.ViewSet, generics.ListAPIView):
         return Response(serializers.UserPostUserCommentSerializer(user_comment, many=True).data,
                         status=status.HTTP_200_OK)
 
-    @action(methods=['get'], url_path='owner-comments', detail=True)
-    def get_owner_comments(self, request, pk):
-        owner_comment = self.get_object().userpostownercomment_set.filter(active=True)
-        return Response(serializers.UserPostOwnerCommentSerializer(owner_comment, many=True).data,
-                        status=status.HTTP_200_OK)
-
-    @action(methods=['post'], url_path='owner-comments', detail=True)
-    def add_owner_comment(self, request, pk):
-        if hasattr(request.user, 'houseowner'):
-            houseowner = request.user.houseowner
-            c = self.get_object().userpostownercomment_set.create(comment_content=request.data.get('comment_content'),
-                                                                  author=houseowner)
-        else:
-            return Response({'error': 'User is not a House Owner'})
-        return Response(serializers.UserPostOwnerCommentSerializer(c).data, status=status.HTTP_201_CREATED)
 
     @action(methods=['post'], url_path='user-comments', detail=True)
     def add_user_comment(self, request, pk):
         c = self.get_object().userpostusercomment_set.create(comment_content=request.data.get('comment_content'),
                                                              author=request.user)
-        if hasattr(request.user, 'houseowner'):
-            return Response({'error': 'Account is not a RentHouseUser'})
-        else:
-            return Response(serializers.UserPostUserCommentSerializer(c).data, status=status.HTTP_201_CREATED)
+        return Response(serializers.UserPostUserCommentSerializer(c).data, status=status.HTTP_201_CREATED)
 
 
 class OwnerPostViewSet(viewsets.ViewSet, generics.ListAPIView):
     queryset = OwnerPost.objects.all()
     serializer_class = serializers.OwnerPostSerializer
     pagination_class = paginator.BasePaginator
-
 
     def get_queryset(self):
         queryset = self.queryset
@@ -195,7 +184,7 @@ class OwnerPostViewSet(viewsets.ViewSet, generics.ListAPIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
     def get_permissions(self):
-        if self.action in ['add_owner_comment', 'add_user_comment']:
+        if self.action in ['add_user_comment']:
             return [permissions.IsAuthenticated()]
 
         return [permissions.AllowAny()]
@@ -206,62 +195,20 @@ class OwnerPostViewSet(viewsets.ViewSet, generics.ListAPIView):
         return Response(serializers.OwnerPostUserCommentSerializer(user_comment, many=True).data,
                         status=status.HTTP_200_OK)
 
-    @action(methods=['get'], url_path='owner-comments', detail=True)
-    def get_owner_comments(self, request, pk):
-        owner_comment = self.get_object().ownerpostownercomment_set.filter(active=True)
-        return Response(serializers.OwnerPostOwnerCommentSerializer(owner_comment, many=True).data,
-                        status=status.HTTP_200_OK)
 
-    @action(methods=['post'], url_path='owner-comments', detail=True)
-    def add_owner_comment(self, request, pk):
-        if hasattr(request.user, 'houseowner'):
-            houseowner = request.user.houseowner
-            c = self.get_object().ownerpostownercomment_set.create(comment_content=request.data.get('comment_content'),
-                                                                   author=houseowner)
-        else:
-            return Response({'error': 'Account is not a House Owner'})
-        return Response(serializers.OwnerPostOwnerCommentSerializer(c).data, status=status.HTTP_201_CREATED)
-
-    @action(methods=['post'], url_path='user-comments', detail=True)
+    @action(methods=['post'], url_path='user-comment', detail=True)
     def add_user_comment(self, request, pk):
         c = self.get_object().ownerpostusercomment_set.create(comment_content=request.data.get('comment_content'),
                                                              author=request.user)
-        if hasattr(request.user, 'houseowner'):
-            return Response({'error': 'Account is not a RentHouseUser'})
-        else:
-            return Response(serializers.OwnerPostUserCommentSerializer(c).data, status=status.HTTP_201_CREATED)
+        return Response(serializers.OwnerPostUserCommentSerializer(c).data, status=status.HTTP_201_CREATED)
 
-
-
-class UserPostOwnerCommentViewSet(viewsets.ViewSet, generics.ListAPIView, generics.DestroyAPIView, generics.UpdateAPIView):
-    queryset = UserPostOwnerComment.objects.all()
-    serializer_class = serializers.UserPostOwnerCommentSerializer
-    pagination_class = paginator.BasePaginator
-    permission_classes = [perms.CommentAuthor]
-
-    def get_queryset(self):
-        queryset = self.queryset
-
-        comment_author_id = self.request.query_params.get('author_id')
-        if comment_author_id:
-            queryset = queryset.filter(author_id=comment_author_id)
-        return queryset
 
 
 class UserPostUserCommentViewSet(viewsets.ViewSet, generics.ListAPIView, generics.DestroyAPIView, generics.UpdateAPIView):
     queryset = UserPostUserComment.objects.all()
     serializer_class = serializers.UserPostUserCommentSerializer
     pagination_class = paginator.BasePaginator
-    permission_classes = [perms.CommentAuthor]
 
-    def retrieve(self, request, pk=None):
-        queryset = self.get_queryset()
-        try:
-            user_comments = queryset.get(pk=pk)
-            serializer = self.serializer_class(user_comments)
-            return Response(serializer.data)
-        except OwnerPostUserComment.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
 
     def get_queryset(self):
         queryset = self.queryset
@@ -272,35 +219,13 @@ class UserPostUserCommentViewSet(viewsets.ViewSet, generics.ListAPIView, generic
         return queryset
 
 
-class OwnerPostOwnerCommentViewSet(viewsets.ViewSet, generics.ListAPIView, generics.DestroyAPIView, generics.UpdateAPIView):
-    queryset = OwnerPostOwnerComment.objects.all()
-    serializer_class = serializers.OwnerPostOwnerCommentSerializer
-    pagination_class = paginator.BasePaginator
-    permission_classes = [perms.CommentAuthor]
-
-    def get_queryset(self):
-        queryset = self.queryset
-
-        comment_author_id = self.request.query_params.get('author_id')
-        if comment_author_id:
-            queryset = queryset.filter(author_id=comment_author_id)
-        return queryset
 
 
 class OwnerPostUserCommentViewSet(viewsets.ViewSet, generics.ListAPIView, generics.DestroyAPIView, generics.UpdateAPIView):
     queryset = OwnerPostUserComment.objects.all()
     serializer_class = serializers.OwnerPostUserCommentSerializer
     pagination_class = paginator.BasePaginator
-    permission_classes = [perms.CommentAuthor]
 
-    def retrieve(self, request, pk=None):
-        queryset = self.get_queryset()
-        try:
-            user_comments = queryset.get(pk=pk)
-            serializer = self.serializer_class(user_comments)
-            return Response(serializer.data)
-        except OwnerPostUserComment.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
 
     def get_queryset(self):
         queryset = self.queryset

@@ -6,12 +6,13 @@ from cloudinary.models import CloudinaryField
 
 class User(AbstractUser):
     avatar = CloudinaryField()
+    is_houseowner = models.BooleanField(default=False)
 
 
 class HouseOwner(User):
     address = models.CharField(max_length=255)
     phone = models.CharField(max_length=20, null=True)
-    is_houseowner = models.BooleanField(default=True)
+
     class Meta:
         verbose_name = 'House Owner User'
 
@@ -30,7 +31,6 @@ class House(BaseModel):
     address = models.CharField(max_length=255)
     latitude = models.FloatField(default=0)  # vi do
     longtitude = models.FloatField(default=0)  # kinh do
-    price = models.FloatField(default=0)
     house_owner = models.ForeignKey(HouseOwner, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
@@ -76,7 +76,7 @@ class OwnerPost(BaseModel):
         return self.author.username + " Post"
 
 
-# Bình luận bài viết của chủ trọ với tài khoan là người dùng
+# Bình luận bài viết của chủ trọ
 class OwnerPostUserComment(BaseModel):
     comment_content = RichTextField()  # Nội dung comment
     author = models.ForeignKey(User, on_delete=models.CASCADE)  # Tác giả comment
@@ -85,15 +85,6 @@ class OwnerPostUserComment(BaseModel):
     def __str__(self):
         return self.author.username + " in " + self.post_comment.author.username + " Post"
 
-
-# Bình luận bài viết của chủ trọ với tài khoản là chủ trọ
-class OwnerPostOwnerComment(BaseModel):
-    comment_content = RichTextField()  # Nội dung comment
-    author = models.ForeignKey(HouseOwner, on_delete=models.CASCADE)  # Tác giả comment
-    post_comment = models.ForeignKey(OwnerPost, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.author.username + " in " + self.post_comment.author.username + " Post"
 
 
 # Người dùng đăng bài tìm trọ
@@ -106,7 +97,7 @@ class UserPost(BaseModel):
         return self.author.username + " Post"
 
 
-# Bình luận bài viết của người tìm trọ với tài khoản là người dùng
+# Bình luận bài viết của người dùng
 class UserPostUserComment(BaseModel):
     comment_content = RichTextField()  # Nội dung comment
     author = models.ForeignKey(User, on_delete=models.CASCADE)  # Tác giả comment
@@ -115,15 +106,6 @@ class UserPostUserComment(BaseModel):
     def __str__(self):
         return self.author.username + " in " + self.post_comment.author.username + " Post"
 
-
-# Bình luận bài viết của người tìm trọ với tài khoản là người dùng
-class UserPostOwnerComment(BaseModel):
-    comment_content = RichTextField()  # Nội dung comment
-    author = models.ForeignKey(HouseOwner, on_delete=models.CASCADE)  # Tác giả comment
-    post_comment = models.ForeignKey(UserPost, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.author.username + " in " + self.post_comment.author.username + " Post"
 
 
 class Follow(models.Model):

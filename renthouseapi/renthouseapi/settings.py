@@ -11,11 +11,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import cloudinary
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-MEDIA_ROOT = '%s/renthouse/static/' % BASE_DIR
+MEDIA_ROOT = '/home/letricuong1910/RentFinderApp/renthouseapi/static/'
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -26,10 +27,9 @@ SECRET_KEY = 'django-insecure-g97zppfbklh7y=!uc6oh&2r0ymbi-jxp5106d3jlpp!)45wy-s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['letricuong1910.pythonanywhere.com']
 
 import pymysql
-
 pymysql.install_as_MySQLdb()
 
 # Application definition
@@ -89,18 +89,20 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'renthouseapi.wsgi.application'
 
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'renthousedb',
-        'USER': 'root',
-        'PASSWORD': '19892811',
-        'HOST': ''  # mặc định localhost
+        'NAME': 'letricuong1910$renthousedb',
+        'USER': 'letricuong1910',
+        'PASSWORD': 'Admin@123',
+        'HOST': 'letricuong1910.mysql.pythonanywhere-services.com'# mặc định localhost
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -120,6 +122,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -131,8 +134,13 @@ USE_I18N = True
 
 USE_TZ = True
 
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
+
+import os
+
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 STATIC_URL = 'static/'
 
@@ -141,12 +149,15 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# WzjcCHt15mXfrBLuvGV24oK6zlSyzenDoDa31Mzb
-# wG2PKK5EQ8Y5xzak8WKq454FwARgN6IGmY8gZHLYdAFSQX0Cm5bkbr84iq7aBlRPdMLJTOFUm9h6vxeOFz1671cVvRTjnZ0miHxBd06jXTBk1fH76Wpdo9ZJpzR5ekXQ
+#WzjcCHt15mXfrBLuvGV24oK6zlSyzenDoDa31Mzb
+#wG2PKK5EQ8Y5xzak8WKq454FwARgN6IGmY8gZHLYdAFSQX0Cm5bkbr84iq7aBlRPdMLJTOFUm9h6vxeOFz1671cVvRTjnZ0miHxBd06jXTBk1fH76Wpdo9ZJpzR5ekXQ
+
+import cloudinary
 
 cloudinary.config(
     cloud_name="dtso8xpof",
     api_key="449524781133512",
     api_secret="IP1_n16zBbsn4G2xljafBamtpGI",  # Click 'View Credentials' below to copy your API secret
+    api_proxy = "http://proxy.server:3128/",
     secure=True
 )

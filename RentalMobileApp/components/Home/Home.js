@@ -5,7 +5,8 @@ import moment from "moment";
 
 import RenderHTML from "react-native-render-html";
 import Icon from 'react-native-vector-icons/FontAwesome';
-
+import { useContext } from "react";
+import { MyUserContext } from "../../configs/Contexts";
 
 
 
@@ -15,6 +16,7 @@ const Home = ({ navigation }) => {
     const { width } = useWindowDimensions()
     const [nextPostUser, setNextPostUser] = useState('')
     const [nextPostOwner, setNextPostOwner] = useState('')
+    const user = useContext(MyUserContext);
 
 
     const gotoPostDetail = (ownerpostId) => {
@@ -26,18 +28,18 @@ const Home = ({ navigation }) => {
             let res = await APIs.get(nextPostOwner || endpoints['owner-posts']);
             console.log(res.data.results);
             setOwnerposts([...ownerposts, ...res.data.results]);
-            setNextPostOwner(res.data.next) 
+            setNextPostOwner(res.data.next)
 
         } catch (ex) {
             console.error(ex);
         }
     }
- 
+
     const loadUsesrposts = async () => {
         try {
             let res = await APIs.get(nextPostUser || endpoints['user-posts']);
             console.log(res.data.results);
-            setUserposts([...userposts, ...res.data.results]); 
+            setUserposts([...userposts, ...res.data.results]);
             setNextPostUser(res.data.next)
 
         } catch (ex) {
@@ -52,12 +54,18 @@ const Home = ({ navigation }) => {
             console.error(err)
         }
     }
+    function ScrollViewPost(){
+        if (user.is_owner == true)
+            return (<UserPostView/>)
+        else
+            return (<OwnerPostView/>)
+    }
 
     React.useEffect(() => {
         loadOwnerposts();
         setTimeout(() => {
-            loadUsesrposts(); 
-        },100)
+            loadUsesrposts();
+        }, 100)
     }, [])
 
     const OwnerPostView = () => {
@@ -66,31 +74,31 @@ const Home = ({ navigation }) => {
                 {ownerposts.map(h => {
                     return (
                         <View key={h.id} className={`bg-white shadow-md border-b-2 border-orange-300 rounded-lg p-3 mb-4`}>
-                             <View className={`flex-row items-center mb-4`}>
+                            <View className={`flex-row items-center mb-4`}>
                                 <Image
-                                source={{ uri: "https://res.cloudinary.com/dhitdivyi/image/upload/v1718385861/l0onkudwpw6smzzaodkz.jpg" }}
-                                className={`w-10 h-10 rounded-full mr-2`}
-                            />
+                                    source={{ uri: h.author_avatar }}
+                                    className={`w-10 h-10 rounded-full mr-2`}
+                                />
 
-                            <Text className={`text-base text-gray-600`}>{h.house.house_owner}</Text>
-                            <TouchableOpacity className="ml-10">
-                                <Text >Theo dõi</Text>
-                            </TouchableOpacity>
-                        </View>
+                                <Text className={`text-base text-gray-600`}>{h.author_name}</Text>
+                                <TouchableOpacity className="ml-10">
+                                    <Text >Theo dõi</Text>
+                                </TouchableOpacity>
+                            </View>
                             <TouchableOpacity onPress={() => gotoPostDetail(h.id)}>
                                 <RenderHTML
                                     contentWidth={width}
                                     source={{ html: h.post_content }}
                                 />
                                 {h.house.images.map((image) => (
-                                <Image
-                                    source={{ uri: image.image }}
-                                    className={`w-full h-48 rounded-lg mb-4`}
-                                    resizeMode="cover"
-                                />
-                            ))}
+                                    <Image
+                                        source={{ uri: image.image }}
+                                        className={`w-full h-48 rounded-lg mb-4`}
+                                        resizeMode="cover"
+                                    />
+                                ))}
                             </TouchableOpacity>
-                            
+
                             <Text className={`text-sm text-gray-600 mb-2`}>{moment(h.created_date).fromNow()}</Text>
                         </View>
                     )
@@ -103,6 +111,17 @@ const Home = ({ navigation }) => {
             {userposts == null ? <ActivityIndicator /> : <>
                 {userposts.map(h => (
                     <View key={h.id} className={`bg-white shadow-md border-b-2 border-blue-300 rounded-lg p-4 mb-4`}>
+                        <View className={`flex-row items-center mb-4`}>
+                            <Image
+                                source={{ uri: h.author_avatar }}
+                                className={`w-10 h-10 rounded-full mr-2`}
+                            />
+
+                            <Text className={`text-base text-gray-600`}>{h.author_name}</Text>
+                            <TouchableOpacity className="ml-10">
+                                <Text >Theo dõi</Text>
+                            </TouchableOpacity>
+                        </View>
                         <TouchableOpacity >
                             <RenderHTML
                                 source={{ html: h.post_content }}
@@ -122,8 +141,8 @@ const Home = ({ navigation }) => {
         setRefreshing(true);
         loadOwnerposts();
         setTimeout(() => {
-            loadUsesrposts(); 
-        },100)
+            loadUsesrposts();
+        }, 100)
         setTimeout(() => {
             setRefreshing(false);
         }, 2000);
@@ -147,7 +166,8 @@ const Home = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
                 <Text className={'font-serif text-orange-500 text-xl font-bold text-center mb-10'}>TRANG CHỦ</Text>
-                <OwnerPostView />
+                <OwnerPostView/>
+                
             </View>
         </ScrollView>
     )

@@ -3,7 +3,7 @@ from django.db.models import Count
 from django.template.response import TemplateResponse
 
 from renthouse.models import User, House, RoomForRent, HouseOwner, HouseImage, RoomImage, UserPost, OwnerPost, \
-    UserPostOwnerComment, UserPostUserComment, OwnerPostOwnerComment, OwnerPostUserComment
+    UserPostUserComment, OwnerPostUserComment
 from django.utils.html import mark_safe
 from django import forms
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
@@ -17,15 +17,10 @@ class RentHouseAdminSite(admin.AdminSite):
         return [path('statistic/', self.stats_view)] + super().get_urls()
 
     def stats_view(self, request):
-        user_stats = User.objects.exclude(houseowner__isnull=False).values('id', 'username', 'date_joined')
-        user_count = User.objects.exclude(houseowner__isnull=False).count()
-        howner_stats = HouseOwner.objects.values('id', 'username', 'date_joined')
-        howner_count = HouseOwner.objects.count()
+        user_stats = User.objects.annotate(c=Count('user__id')).values('id', 'username', 'c')
+        owner_stats = HouseOwner.objects.annotate(c=Count('houseowner__id')).values('id', 'username', 'c')
         return TemplateResponse(request, 'admin/statistic.html', {
-            "user_stats": user_stats,
-            "user_count": user_count,
-            "howner_stats": howner_stats,
-            "howner_count": howner_count
+            "user_stats": user_stats
         })
 
 
@@ -48,27 +43,12 @@ class OwnerPostForm(forms.ModelForm):
         fields = '__all__'
 
 
-class UserPostOwnerCommentForm(forms.ModelForm):
-    comment_content = forms.CharField(widget=CKEditorUploadingWidget)
-
-    class Meta:
-        model = UserPostOwnerComment
-        fields = '__all__'
-
 
 class UserPostUserCommentForm(forms.ModelForm):
     comment_content = forms.CharField(widget=CKEditorUploadingWidget)
 
     class Meta:
         model = UserPostUserComment
-        fields = '__all__'
-
-
-class OwnerPostOwnerCommentForm(forms.ModelForm):
-    comment_content = forms.CharField(widget=CKEditorUploadingWidget)
-
-    class Meta:
-        model = OwnerPostOwnerComment
         fields = '__all__'
 
 
@@ -120,10 +100,6 @@ class UserPostUserCommentManager(admin.ModelAdmin):
     form = UserPostUserCommentForm
 
 
-class UserPostOwnerCommentManager(admin.ModelAdmin):
-    list_display = ['id', '__str__', 'created_date']
-    form = UserPostOwnerCommentForm
-
 
 class OwnerPostManager(admin.ModelAdmin):
     list_display = ['id', '__str__', 'created_date']
@@ -135,10 +111,6 @@ class OwnerPostUserCommentManager(admin.ModelAdmin):
     form = OwnerPostUserCommentForm
 
 
-class OwnerPostOwnerCommentManager(admin.ModelAdmin):
-    list_display = ['id', '__str__', 'created_date']
-    form = OwnerPostOwnerCommentForm
-
 
 # Register your models here.
 admin_site.register(User, AccountManager)
@@ -149,7 +121,5 @@ admin_site.register(RoomImage, ImageModel)
 admin_site.register(RoomForRent, RoomManager)
 admin_site.register(UserPost, UserPostManager)
 admin_site.register(OwnerPost, OwnerPostManager)
-admin_site.register(UserPostOwnerComment, UserPostOwnerCommentManager)
 admin_site.register(UserPostUserComment, UserPostUserCommentManager)
-admin_site.register(OwnerPostOwnerComment, OwnerPostOwnerCommentManager)
 admin_site.register(OwnerPostUserComment, OwnerPostUserCommentManager)
