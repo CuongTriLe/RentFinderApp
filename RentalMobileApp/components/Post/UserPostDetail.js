@@ -1,7 +1,6 @@
-import { Alert, Text, View, ScrollView, RefreshControl } from "react-native"
+import { View, Text, ScrollView, TouchableOpacity, Image, RefreshControl } from "react-native"
 import APIs, { endpoints, authApi } from "../../configs/APIs";
 import React from "react";
-import { Image } from "react-native";
 import { ActivityIndicator, TextInput, Button } from "react-native-paper";
 import RenderHTML from "react-native-render-html";
 import moment from 'moment'
@@ -10,25 +9,24 @@ import { useContext } from "react";
 import { getTokens } from "../Utils/Utilities";
 
 
-const OwnerPostDetails = ({ route }) => {
+const UserPostDetails = ({ route }) => {
     const user = useContext(MyUserContext);
-    const [ownerposts, setOwnerpost] = React.useState([]);
+    const [userposts, setUserpost] = React.useState([]);
     const [comments, setComments] = React.useState({});
     const [commentList, setCommentList] = React.useState([]);
-    const { ownerpostId } = route.params;
+    const { userpostId } = route.params;
 
-    const loadOwnerpost = async () => {
+    const loadUserpost = async () => {
         try {
-            let res = await APIs.get(endpoints['owner-posts-details'](ownerpostId));
-            console.log(res.data.house.address)
-            setOwnerpost([res.data]);
+            let res = await APIs.get(endpoints['user-posts-details'](userpostId));
+            setUserpost([res.data]);
         } catch (ex) {
             console.error(ex);
         }
     }
     const loadCommentList = async () => {
         try {
-            res = await APIs.get(endpoints['owner-posts-comments'](ownerpostId));
+            res = await APIs.get(endpoints['user-posts-comments'](userpostId));
             console.log(res.data)
             setCommentList(res.data)
 
@@ -56,7 +54,7 @@ const OwnerPostDetails = ({ route }) => {
             form.append('comment_content', comments['comment_content'])
             form.append('author', user.id)
             try {
-                let res = await authApi(accessToken).post(endpoints['owner-posts-comments-post'](ownerpostId), form, {
+                let res = await authApi(accessToken).post(endpoints['user-posts-comments-post'](userpostId), form, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -75,7 +73,7 @@ const OwnerPostDetails = ({ route }) => {
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
-        loadOwnerpost();
+        loadUserpost();
         setTimeout(() => {
             loadCommentList();
         }, 100)
@@ -85,34 +83,33 @@ const OwnerPostDetails = ({ route }) => {
     }, []);
 
     React.useEffect(() => {
-        loadOwnerpost();
+        loadUserpost();
         loadCommentList();
-    }, [ownerpostId]);
+    }, [userpostId]);
 
     return (
         <>
-            {ownerposts == null ? <ActivityIndicator /> : <>
-                {ownerposts.map(h => (
-                    <View key={h.id} className={`flex-row items-center bg-white rounded-lg shadow-md p-4 mb-4`}>
-                        {h.house.images.map((image) => (
+            {userposts == null ? <ActivityIndicator /> : <>
+                {userposts.map(h => (
+                    <View key={h.id} className={`bg-white shadow-md border-b-2 border-blue-300 rounded-lg p-4 mb-4`}>
+                        <View className={`flex-row items-center mb-4`}>
                             <Image
-                                source={{ uri: image.image }}
-                                className={`w-1/3 h-32 rounded-lg mr-4`}
-                                resizeMode="cover"
-                            />))}
-                        <View className={`flex-1`}>
+                                source={{ uri: h.author_avatar }}
+                                className={`w-10 h-10 rounded-full mr-2`}
+                            />
+
+                            <Text className={`text-base text-gray-600`}>{h.author_name}</Text>
+                        </View>
+                        <TouchableOpacity >
                             <RenderHTML
                                 source={{ html: h.post_content }}
                             />
-                            <Text className={`text-sm text-black-600 mb-2`}>
-                                {h.house.address}
-                            </Text>
-                        </View>
+                        </TouchableOpacity>
+                        <Text className={`text-sm text-gray-600 mb-2`}>Khu vực: {h.find_area_address}</Text>
+                        <Text className={`text-sm text-gray-600 mb-2`}>{moment(h.created_date).fromNow()}</Text>
                     </View>
                 ))}
-
-            </>
-            }
+            </>}
             <View>
                 <Text className={`text-sm text-black-600-mb-2 font-bold ml-2`}>Bình luận</Text>
                 {field.map(c => <TextInput placeholder="Nhập bình luận..." value={comments[c.name]} onChangeText={t => updateSate(c.name, t)} key={c.name} />)}
@@ -146,4 +143,4 @@ const OwnerPostDetails = ({ route }) => {
     )
 
 }
-export default OwnerPostDetails;
+export default UserPostDetails;

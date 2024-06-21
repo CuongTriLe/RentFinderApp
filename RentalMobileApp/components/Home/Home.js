@@ -58,6 +58,10 @@ const Home = ({ navigation }) => {
     const gotoPostDetail = (ownerpostId) => {
         navigation.navigate("OwnerPostDetails", { ownerpostId })
     }
+    const gotoUserPostDetail = (userpostId) => {
+        navigation.navigate("UserPostDetail", { userpostId })
+    }
+
 
     const loadOwnerposts = async () => {
         try {
@@ -158,7 +162,7 @@ const Home = ({ navigation }) => {
 
                             <Text className={`text-base text-gray-600`}>{h.author_name}</Text>
                         </View>
-                        <TouchableOpacity >
+                        <TouchableOpacity onPress={() => gotoUserPostDetail(h.id)}>
                             <RenderHTML
                                 source={{ html: h.post_content }}
                             />
@@ -248,8 +252,9 @@ const Home = ({ navigation }) => {
                 
                 </View>
 
-                <Text className={'font-serif text-orange-500 text-xl font-bold text-center mb-10'}>TRANG CHỦ</Text>
-                <OwnerPostView/>
+                <Text className={'font-serif text-orange-500 text-xl font-bold text-center m-5'}>TRANG CHỦ</Text>
+
+                <UserPostView/>
                 
             </View>
         </ScrollView>

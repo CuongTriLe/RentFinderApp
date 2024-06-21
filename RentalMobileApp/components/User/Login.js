@@ -5,7 +5,7 @@ import APIs, { authApi, endpoints } from "../../configs/APIs";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { MyDispatchContext } from "../../configs/Contexts";
-
+import { setTokens } from "../Utils/Utilities";
 
 const Login = ({navigation}) => {
     const [user, setUser] = React.useState({});
@@ -48,8 +48,8 @@ const Login = ({navigation}) => {
               }
           });
             console.info(res.data);
+            await setTokens(res);
 
-            await AsyncStorage.setItem("token", res.data.access_token);
             
             setTimeout(async () => {
                 let user = await authApi(res.data.access_token).get(endpoints['current-user']);

@@ -8,6 +8,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Icon } from 'react-native-paper';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import OwnerPostDetails from './components/Post/OwnerPostDetails';
+import UserPostDetail from './components/Post/UserPostDetail'
 import { MyDispatchContext, MyUserContext } from './configs/Contexts';
 import { MyUserReducer } from './configs/Reducers';
 import Profile from './components/User/Profile';
@@ -48,6 +49,7 @@ const MyStack = () => {
 
       <Stack.Screen name ='Rooms' component={Rooms}></Stack.Screen>
       <Stack.Screen name ='OwnerPostDetails' component={OwnerPostDetails}></Stack.Screen>
+      <Stack.Screen name ='UserPostDetail' component={UserPostDetail}></Stack.Screen>
       <Tab.Screen name="Register" component={Register} options={{ title: "Đăng ký", tabBarIcon: () => <Icon size={30} color="#ff8800" source="account" />}} />
     </Stack.Navigator>
   )
